@@ -1,0 +1,32 @@
+name: check-fmt
+
+on:
+  push:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check-fmt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: run go fmt
+        run: |
+          go fmt ./...
+          UNFORMATTED_FILES=$(git status --porcelain --untracked-files=no)
+          if [[ "$UNFORMATTED_FILES" ]]; then
+            echo "unformatted files found:"
+            echo "$UNFORMATTED_FILES"
+            exit 1
+          fi
